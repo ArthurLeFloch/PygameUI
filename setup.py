@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='pygame_ui_controls',
-    version='1.0.0',
+    version='1.0.1',
     author='Arthur Le Floch',
     author_email='alf.github@gmail.com',
     description='Pygame UI controls',
