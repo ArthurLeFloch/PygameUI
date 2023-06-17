@@ -1,11 +1,11 @@
 from setuptools import setup
 
 setup(
-    name='PygameUI',
+    name='pygame_ui_controls',
     version='1.0.0',
     author='Arthur Le Floch',
     author_email='alf.github@gmail.com',
-    description='Pygame UI',
+    description='Pygame UI controls',
     long_description='UI controls for Pygame (Button, ImageButton, CheckBox, Slider, Text)',
     url='https://github.com/ArthurLeFloch/PygameUI',
     packages=[''],

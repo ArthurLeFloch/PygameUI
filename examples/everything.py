@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import QUIT, KEYDOWN, K_ESCAPE
 
-from pygame_ui import UI, Button, Slider, CheckBox, Text, ImageButton
+from ui_controls import UI, Button, Slider, CheckBox, Text, ImageButton
 
 if __name__ == "__main__":
     pygame.init()
