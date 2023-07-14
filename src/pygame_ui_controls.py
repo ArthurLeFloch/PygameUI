@@ -35,8 +35,6 @@ class UI:
     clicked_up = False
     clicked_down = False
 
-    clicked_down_pos = None
-
     def __init__(self, name, pos, size, hoverable, locked, on_click=None):
         UI.dict[self.__class__.__name__][name] = self
 
@@ -112,6 +110,17 @@ class UI:
     @classmethod
     def set_on_confirm(cls, name, function):
         UI.dict[cls.__name__][name].on_click = function
+    
+    @classmethod
+    def set_pos(cls, name, pos):
+        UI.dict[cls.__name__][name].pos = pos
+        UI.dict[cls.__name__][name].rect = pygame.Rect((pos[0], pos[1]), (UI.dict[cls.__name__][name].size[0], UI.dict[cls.__name__][name].size[1]))
+    
+    @classmethod
+    def set_size(cls, name, size):
+        UI.dict[cls.__name__][name].size = size
+        UI.dict[cls.__name__][name].rect = pygame.Rect(UI.dict[cls.__name__][name].pos, size)
+        UI.dict[cls.__name__][name].appearence = UI.dict[cls.__name__][name].appearences()
 
     def update(surface, x, y, pressed):
         UI.last_rects = UI.new_rects.copy()
@@ -163,6 +172,7 @@ class UI:
             UI.focused = self
 
         self.down = ((UI.pressed and self.hovered) or (UI.focused == self)) and not self.locked
+        
         self.clicked_up = UI.clicked_up and UI.focused == self and self.hovered and not self.locked
 
         if UI.focused != None and UI.focused != self:
@@ -479,8 +489,6 @@ class CheckBox(UI):
     thickness = 3
     border_radius = 4
 
-    COLOR_BUTTON_SIDE = (10, 14, 18)
-
     def __init__(self, name, pos, size=30, checked=False, hoverable=True, locked=False, linked=None, on_check=None, on_uncheck=None, on_action=None):
         UI.__init__(self, name, pos, (size, size), hoverable, locked)
         self.checked = checked
@@ -596,18 +604,12 @@ class CheckBox(UI):
 
 class Text(UI):
 
-    thickness = 3
-    border_radius = 4
-
-    COLOR_BUTTON_SIDE = (10, 14, 18)
-
     def __init__(self, name, pos, text="Text", color=None, centered=(False, False)):
         UI.__init__(self, name, pos, size=(0, 0), hoverable=False, locked=False)
         
+        self.color = color
         if color == None:
             self.color = (255, 255, 255)
-        else:
-            self.color = color
 
         self.text = text
         self.centered = centered
@@ -621,7 +623,7 @@ class Text(UI):
     def set_text(name, text):
         self = UI.dict[Text.__name__][name]
         self.text = text
-        self.appearence = self.setup()
+        self.appearence = self.appearences()
 
     def on_update(self, surface):
         x, y = self.pos
