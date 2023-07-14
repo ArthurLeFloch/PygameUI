@@ -1,8 +1,11 @@
 # PygameUI
 
-This code was extracted and simplified from [TowerDefenseV2](https://github.com/ArthurLeFloch/TowerDefenseV2).
+This code was extracted and simplified from [TowerDefenseV2](https://github.com/ArthurLeFloch/TowerDefenseV2), and can be install with the following command :
+```
+$ pip install pygame_ui_controls
+```
 
-# Presentation
+## Presentation
 This code allows to create these UI elements :
 - Button
 - ImageButton
@@ -10,10 +13,18 @@ This code allows to create these UI elements :
 - CheckBox
 - Text
 
-# Callbacks
+## Callbacks
 These elements come with callbacks :
 - Button : `on_click`
 - ImageButton : `on_click`
 - Slider : `on_value_changed` (takes value as argument)
 - CheckBox : `on_check`, `on_uncheck`, `on_action` (check or uncheck)
 - Text : nothing
+
+## Notes
+- Documentation might come later (parameters' names might be self-explanatory though) as well as types
+- UI components are referenced by names (check [everything.py](examples/everything.py))
+- More abstraction might come later, with less access to base functions and more top-level functions
+
+## License
+PygameUI is licensed under the [GPL v3.0 License](LICENSE).
