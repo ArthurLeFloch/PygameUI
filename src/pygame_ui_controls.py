@@ -222,6 +222,9 @@ class Button(UI):
     def set_text(name, text):
         UI.dict[Button.__name__][name].text = text
     
+    def set_hoverable(name, hoverable):
+        UI.dict[Button.__name__][name].hoverable = hoverable
+    
     def text_color(self):
         if self.locked:
             return Button.TEXT_COLOR_LOCKED
@@ -257,10 +260,12 @@ class ImageButton(UI):
     def __init__(self, name, path, pos, size=(50, 50), hoverable=True, locked=False, on_click=None):
         UI.__init__(self, name, pos, size, hoverable, locked, on_click=on_click)
 
-        self.set_image_data(path)
+        self.path = path
         self.appearence = self.appearences()
 
     def appearences(self):
+        self.set_image_data()
+
         outer_rect = (0, 0, self.size[0], self.size[1])
         inner_rect = (ImageButton.thickness, ImageButton.thickness, self.size[0] - 2 * ImageButton.thickness, self.size[1] - 2 * ImageButton.thickness)
 
@@ -301,13 +306,13 @@ class ImageButton(UI):
 
         return {'locked': locked, 'down': down, 'hovered': hovered, 'classic': classic}
 
-    def set_image_data(self, path):
+    def set_image_data(self):
         thickness, intern_thickness, extern_thickness = ImageButton.thickness, ImageButton.intern_thickness, ImageButton.extern_thickness
 
         max_width = self.size[0] - 2 * thickness - 2 * intern_thickness - 2 * extern_thickness
         max_height = self.size[1] - 2 * thickness - 2 * intern_thickness - 2 * extern_thickness
 
-        default_width, default_height = get_image_size(path)
+        default_width, default_height = get_image_size(self.path)
         width, height = 0, 0
 
         if default_width / max_width > default_height / max_height:
@@ -317,7 +322,7 @@ class ImageButton(UI):
             height = max_height
             width = default_width * height / default_height
         
-        self.image = get_image((width, height), path)
+        self.image = get_image((width, height), self.path)
         self.im_pos = (self.size[0] // 2 - width // 2, self.size[1] // 2 - height // 2)
 
         self.mask_size = (self.size[0] - 2 * thickness - 2 * extern_thickness, self.size[1] - 2 * thickness - 2 * extern_thickness)   
@@ -325,7 +330,12 @@ class ImageButton(UI):
         self.mask_pos = (thickness + extern_thickness, thickness + extern_thickness)
         
     def set_image(name, path):
-        UI.dict[ImageButton.__name__][name].set_image_data(path)
+        self = UI.dict[ImageButton.__name__][name]
+        self.path = path
+        self.appearence = self.appearences()
+    
+    def set_hoverable(name, hoverable):
+        UI.dict[ImageButton.__name__][name].hoverable = hoverable
 
     def on_update(self, surface):
         UI.new_rects.append((*self.pos, *self.size))
@@ -489,6 +499,8 @@ class CheckBox(UI):
     thickness = 3
     border_radius = 4
 
+    COLOR_BUTTON_SIDE = (10, 14, 18)
+
     def __init__(self, name, pos, size=30, checked=False, hoverable=True, locked=False, linked=None, on_check=None, on_uncheck=None, on_action=None):
         UI.__init__(self, name, pos, (size, size), hoverable, locked)
         self.checked = checked
@@ -624,8 +636,16 @@ class Text(UI):
         self = UI.dict[Text.__name__][name]
         self.text = text
         self.appearence = self.appearences()
+    
+    def set_text_color(name, color):
+        self = UI.dict[Text.__name__][name]
+        self.color = color
+        self.appearence = self.appearences()
 
     def on_update(self, surface):
+        rect = (*self.pos, *self.size)
+        UI.new_rects.append(rect)
+        
         x, y = self.pos
 
         if self.centered[0]:
