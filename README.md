@@ -19,10 +19,9 @@ These elements come with callbacks :
 - ImageButton : `on_click`
 - Slider : `on_value_changed` (takes value as argument)
 - CheckBox : `on_check`, `on_uncheck`, `on_action` (check or uncheck)
-- Text : nothing
 
 ## Notes
-- Documentation might come later (parameters' names might be self-explanatory though) as well as types
+- Types might come in the future
 - UI components are referenced by names (check [everything.py](examples/everything.py))
 - More abstraction might come later, with less access to base functions and more top-level functions
 
