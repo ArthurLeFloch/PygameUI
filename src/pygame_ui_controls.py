@@ -109,25 +109,27 @@ class UI:
     @classmethod
     def set_lock(cls, name, val):
         UI.dict[cls.__name__][name].locked = val
+    
+    @classmethod
+    def set_hoverable(cls, name, val):
+        UI.dict[cls.__name__][name].hoverable = val
 
     @classmethod
     def set_on_click(cls, name, function):
         UI.dict[cls.__name__][name].on_click = function
 
     @classmethod
-    def set_on_confirm(cls, name, function):
-        UI.dict[cls.__name__][name].on_click = function
-
-    @classmethod
     def set_pos(cls, name, pos):
-        UI.dict[cls.__name__][name].pos = pos
-        UI.dict[cls.__name__][name].rect = pygame.Rect((pos[0], pos[1]), (UI.dict[cls.__name__][name].size[0], UI.dict[cls.__name__][name].size[1]))
+        self = UI.dict[cls.__name__][name]
+        self.pos = pos
+        self.rect = pygame.Rect((pos[0], pos[1]), (self.size[0], self.size[1]))
 
     @classmethod
     def set_size(cls, name, size):
-        UI.dict[cls.__name__][name].size = size
-        UI.dict[cls.__name__][name].rect = pygame.Rect(UI.dict[cls.__name__][name].pos, size)
-        UI.dict[cls.__name__][name].appearence = UI.dict[cls.__name__][name].appearences()
+        self = UI.dict[cls.__name__][name]
+        self.size = size
+        self.rect = pygame.Rect(self.pos, size)
+        self.appearence = self.appearences()
 
     ##############################
     #  UPDATE AND DRAW ELEMENTS  #
@@ -179,7 +181,7 @@ class UI:
             return UI.COLOR_LOCKED[val]
         elif self.down or is_down:
             return UI.COLOR_DOWN[val]
-        elif self.hovered:
+        elif self.hovered and self.hoverable:
             return UI.COLOR_HOVERED[val]
         else:
             return UI.COLOR_CLASSIC[val]
@@ -206,7 +208,6 @@ class Button(UI):
 
     ## Setters
     - `Button.set_text(name, text)`: set the text of the button
-    - `Button.set_hoverable(name, hoverable)`: set if the button is hoverable or not
 
     ## Example
     Simple button which prints "Clicked !" when clicked
@@ -233,9 +234,6 @@ class Button(UI):
     #############
     def set_text(name, text):
         UI.dict[Button.__name__][name].text = text
-
-    def set_hoverable(name, hoverable):
-        UI.dict[Button.__name__][name].hoverable = hoverable
 
     ################
     #  APPEARENCE  #
@@ -445,17 +443,14 @@ class Slider(UI):
     - `value` (optional): initial value of the slider
     - `range` (optional): range of the slider (min, max)
     - `ticks` (optional): number of ticks of the slider, default is continuous
-    - `step` (optional): step of the slider, default is continuous
     - `on_value_changed` (optional): function called when the value of the slider changes
 
     ## Setters
-    - `Slider.set_lock(locked)`: sets whether the slider is locked or not
-    - `Slider.set_hoverable(hoverable)`: sets whether the slider is hoverable or not
-    - `Slider.set_value(value)`: sets the current value of the slider
-    - `Slider.set_min(value)`: sets the minimum value of the slider
-    - `Slider.set_max(value)`: sets the maximum value of the slider
-    - `Slider.set_step(value)`: sets the step of the slider
-    - `Slider.set_ticks(value)`: sets the number of ticks of the slider
+    - `Slider.set_value(name, value)`: sets the current value of the slider
+    - `Slider.set_min(name, value)`: sets the minimum value of the slider
+    - `Slider.set_max(name, value)`: sets the maximum value of the slider
+    - `Slider.set_ticks(name, value)`: sets the number of ticks of the slider
+    - `Slider.set_size(name, size)`: sets the size of the slider
 
     ## Example
     Simple slider which prints its value when it changes:
@@ -475,7 +470,7 @@ class Slider(UI):
     COLOR_LOCKED_TICK = (20, 28, 36)
     COLOR_BUTTON_SIDE = (10, 14, 18)
 
-    def __init__(self, name, pos, size, hoverable=True, locked=False, value=7, range=(0, 10), ticks=0, step=0, on_value_changed=None):
+    def __init__(self, name, pos, size, hoverable=True, locked=False, value=7, range=(0, 10), ticks=0, on_value_changed=None):
         UI.__init__(self, name, pos, size, hoverable, locked)
         if on_value_changed:
             self.on_value_changed = on_value_changed
@@ -486,11 +481,9 @@ class Slider(UI):
         self.step = 0
         if ticks > 0:
             self.step = (self.max - self.min) / ticks
-        elif step > 0:
-            self.step = step
 
         self.radius = (size[1] - 2 * Slider.thickness) / 2
-        self.center_width = self.size[0] - 2 * self.radius - 2 * Slider.thickness
+        self.center_width = size[0] - 2 * self.radius - 2 * Slider.thickness
 
         if range[0] > value or range[1] < value:
             value = range[1]
@@ -501,17 +494,13 @@ class Slider(UI):
     ###############
     #   SETTERS   #
     ###############
-    def set_lock(name, locked):
-        UI.dict[Slider.__name__][name].locked = locked
-
-    def set_hoverable(name, hoverable):
-        UI.dict[Slider.__name__][name].hoverable = hoverable
-
-    def set_step(name, value):
-        UI.dict[Slider.__name__][name].step = value
-
-    def set_ticks(name, value):
-        UI.dict[Slider.__name__][name].ticks = value
+    def set_ticks(name, ticks):
+        self = UI.dict[Slider.__name__][name]
+        self.ticks = ticks
+        if ticks > 0:
+            self.step = (self.max - self.min) / ticks
+        
+        self.appearence = self.appearences()
 
     def set_value(name, value):
         for key in UI.dict[Slider.__name__]:
@@ -526,10 +515,21 @@ class Slider(UI):
                 self.on_value_changed(value)
 
     def set_min(name, value):
-        UI.dict[Slider.__name__][name].min = value
+        UI.dict[Slider.__name__][name].min = float(value)
 
     def set_max(name, value):
-        UI.dict[Slider.__name__][name].max = value
+        UI.dict[Slider.__name__][name].max = float(value)
+    
+    def set_size(name, size):
+        self = UI.dict[Slider.__name__][name]
+        self.size = size
+
+        self.radius = (size[1] - 2 * Slider.thickness) / 2
+        self.center_width = size[0] - 2 * self.radius - 2 * Slider.thickness
+
+        self.rect = pygame.Rect(self.pos, size)
+
+        self.appearence = self.appearences()
 
     ##################
     #   APPEARENCE   #
@@ -654,12 +654,15 @@ class CheckBox(UI):
     - `on_action` (optional): function called when the checkbox state is changed
 
     ## Getters
-    - `CheckBox.checked()`: returns the current state of the checkbox
+    - `CheckBox.checked(name)`: returns the current state of the checkbox
 
     ## Setters
-    - `CheckBox.uncheck()`: unchecks the checkbox
-    - `CheckBox.check()`: checks the checkbox
-    - `CheckBox.set_check(checked)`: sets the checkbox state to `checked`
+    - `CheckBox.uncheck(name)`: unchecks the checkbox
+    - `CheckBox.check(name)`: checks the checkbox
+    - `CheckBox.set_checked(name, checked)`: sets the checkbox state to `checked`
+    - `CheckBox.set_link(name, others)`: links the checkbox to the others (itself included)
+    - `CheckBox.set_pos(name, pos)`: sets the position of the checkbox
+    - `CheckBox.set_size(name, size)`: sets the size of the checkbox
 
     ## Example
     Simple checkbox which prints "checked" when checked, "unchecked" when unchecked
@@ -713,17 +716,33 @@ class CheckBox(UI):
     #############
     #  SETTERS  #
     #############
+    def set_pos(name, pos):
+        self = UI.dict[CheckBox.__name__][name]
+        self.pos = pos
+        self.setup_pos()
+        self.rect = pygame.Rect(self.pos, self.size)
+    
+    def set_size(name, size):
+        self = UI.dict[CheckBox.__name__][name]
+        self.size = size
+        self.setup_pos()
+        self.rect = pygame.Rect(self.pos, self.size)
+
     def uncheck(name):
         UI.dict[CheckBox.__name__][name].checked = False
 
     def check(name):
         UI.dict[CheckBox.__name__][name].checked = True
 
-    def set_checked(self, checked):
-        if checked:
-            self.check()
-        else:
-            self.uncheck()
+    def set_checked(name, checked):
+        UI.dict[CheckBox.__name__][name].checked = checked
+    
+    def set_link(name, others):
+        self = UI.dict[CheckBox.__name__][name]
+        tmp = others.copy()
+        tmp.remove(name)
+        self.linked = tmp
+        self.is_linked = True
 
     ################
     #  APPEARENCE  #
@@ -812,9 +831,6 @@ class CheckBox(UI):
             self.uncheck_others()
         elif self.checkable():
             self.checked = True
-
-    def link(name, others):
-        UI.dict[CheckBox.__name__][name].links = others
 
 
 class Text(UI):
