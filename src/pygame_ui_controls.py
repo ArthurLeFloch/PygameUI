@@ -142,6 +142,10 @@ class UI:
         UI.clicked_down = (pressed and not UI.pressed)
         UI.clicked_up = (not pressed and UI.pressed)
         UI.pressed = pressed
+        
+        # Displaying view before any UI element
+        for self in View.dict.values():
+            self.on_update(surface)
 
         # Update for every item
         for cls in UI.dict:
@@ -902,3 +906,64 @@ class Text(UI):
             y -= self.size[1] / 2
 
         surface.blit(self.appearence, (x, y))
+
+
+class View:
+    """
+    ## Parameters
+        - `name`: name of the view
+        - `pos`: position of the view
+        - `size`: size of the view
+        - `on_screen_update` (optional): function called every tick
+
+    ## Setters
+    - `View.set_pos(name, pos)`: sets the position of the view
+    - `View.set_size(name, size)`: sets the size of the view
+
+    ## Example
+    View which prints "tick" every tick
+    ```python
+    def on_screen_update(surface):
+        print("tick")
+    
+    View("view_id", (0, 0), (100, 100), on_screen_update)
+    ```
+    """
+
+    dict = {}
+
+    def __init__(self, name, pos=(0, 0), size=(100, 100), on_screen_update=None):
+        if on_screen_update:
+            self.on_screen_update = on_screen_update
+        self.pos = pos
+        self.size = size
+        self.rect = pygame.Rect(pos, size)
+        View.dict[name] = self
+
+    #############
+    #  SETTERS  #
+    #############
+    def set_pos(name, pos):
+        self = View.dict[name]
+        self.pos = pos
+        self.rect = pygame.Rect(self.pos, self.size)
+    
+    def set_size(name, size):
+        self = View.dict[name]
+        self.size = size
+        self.rect = pygame.Rect(self.pos, self.size)
+    
+    def set_on_screen_update(name, on_screen_update):
+        self = View.dict[name]
+        self.on_screen_update = on_screen_update
+    
+    ############
+    #  UPDATE  #
+    ############
+    def on_update(self, surface):
+        rect = (*self.pos, *self.size)
+        UI.new_rects.append(rect)
+        view_surface = pygame.Surface(self.size, pygame.SRCALPHA)
+        if hasattr(self, 'on_screen_update'):
+            self.on_screen_update(view_surface)
+        surface.blit(view_surface, self.pos)
