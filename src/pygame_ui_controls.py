@@ -494,10 +494,19 @@ class Slider(UI):
         self.value = value
 
         self.appearence = self.appearences()
+    
+    #############
+    #  GETTERS  #
+    #############
+    def get_value(name):
+        return UI.dict[Slider.__name__][name].value
 
-    ###############
-    #   SETTERS   #
-    ###############
+    #############
+    #  SETTERS  #
+    #############
+    def set_on_value_changed(name, function):
+        UI.dict[Slider.__name__][name].on_value_changed = function
+
     def set_ticks(name, ticks):
         self = UI.dict[Slider.__name__][name]
         self.ticks = ticks
@@ -535,9 +544,9 @@ class Slider(UI):
 
         self.appearence = self.appearences()
 
-    ##################
-    #   APPEARENCE   #
-    ##################
+    ################
+    #  APPEARENCE  #
+    ################
     def appearences(self):
         radius = int(self.radius)
 
@@ -568,9 +577,9 @@ class Slider(UI):
 
         return {'locked': locked, 'down': down, 'hovered': hovered, 'classic': classic}
 
-    ##############
-    #   UPDATE   #
-    ##############
+    ############
+    #  UPDATE  #
+    ############
     def on_logic_update(self, x, y):
         if self == UI.focused and not self.locked:
             self.update_value(x)
@@ -725,12 +734,14 @@ class CheckBox(UI):
         self.pos = pos
         self.setup_pos()
         self.rect = pygame.Rect(self.pos, self.size)
+        self.appearence = self.appearences()
     
     def set_size(name, size):
         self = UI.dict[CheckBox.__name__][name]
         self.size = size
         self.setup_pos()
         self.rect = pygame.Rect(self.pos, self.size)
+        self.appearence = self.appearences()
 
     def uncheck(name):
         UI.dict[CheckBox.__name__][name].checked = False
@@ -747,6 +758,9 @@ class CheckBox(UI):
         tmp.remove(name)
         self.linked = tmp
         self.is_linked = True
+    
+    def set_on_action(name, function):
+        UI.dict[CheckBox.__name__][name].on_action = function
 
     ################
     #  APPEARENCE  #
@@ -817,7 +831,7 @@ class CheckBox(UI):
     #  UTILS  #
     ###########
     def setup_pos(self):
-        self.tick_center = (self.pos[0] + self.size[0] / 2, self.pos[1] + self.size[0] / 2)
+        self.tick_center = (self.pos[0] + self.size[0] / 2, self.pos[1] + self.size[1] / 2)
 
     def uncheck_others(self):
         for name in self.linked:
@@ -859,7 +873,7 @@ class Text(UI):
     ```
     """
 
-    def __init__(self, name:str, pos, text="Text", color=None, centered=(False, False)):
+    def __init__(self, name, pos, text="Text", color=None, centered=(False, False)):
         UI.__init__(self, name, pos, size=(0, 0), hoverable=False, locked=False)
 
         self.color = color
@@ -869,6 +883,12 @@ class Text(UI):
         self.text = text
         self.centered = centered
         self.appearence = self.appearences()
+    
+    #############
+    #  GETTERS  #
+    #############
+    def get_text(name):
+        return UI.dict[Text.__name__][name].text
 
     #############
     #  SETTERS  #
@@ -881,6 +901,12 @@ class Text(UI):
     def set_text_color(name, color):
         self = UI.dict[Text.__name__][name]
         self.color = color
+        self.appearence = self.appearences()
+    
+    def set_pos(name, pos):
+        self = UI.dict[Text.__name__][name]
+        self.pos = pos
+        self.rect = pygame.Rect(self.pos, self.size)
         self.appearence = self.appearences()
 
     ################
